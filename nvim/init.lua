@@ -5,37 +5,9 @@ vim.o.expandtab = true
 vim.o.termguicolors = true
 vim.o.autoindent = true
 vim.o.cursorline = true
+vim.o.clipboard = "unnamedplus"
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
-
-vim.lsp.config["pylsp"] = {
-    cmd = { 'pylsp' },
-    filetypes = { 'python' },
-    root_markers = {
-        'pyproject.toml', 'setup.py', 'setup.cfg',
-        'requirements.txt', 'Pipfile', '.git',
-    },
-    settings = {}, -- see https://github.com/python-lsp/python-lsp-server/blob/develop/CONFIGURATION.md
-}
-vim.lsp.enable("pylsp")
-
--- from https://github.com/neovim/nvim-lspconfig/blob/master/lsp/lua_ls.lua
-vim.lsp.config["lua_ls"] = {
-  cmd = { 'lua-language-server' },
-  filetypes = { 'lua' },
-  root_markers = {
-    '.emmyrc.json', '.luarc.json', '.luarc.jsonc',
-    '.luacheckrc', '.stylua.toml', 'stylua.toml',
-    'selene.toml', 'selene.yml', '.git',
-  },
-  settings = {
-    Lua = {
-      codeLens = { enable = true },
-      hint = { enable = true, semicolon = 'Disable' },
-    },
-  },
-}
-vim.lsp.enable("lua_ls")
 
 vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>')
 vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>')
@@ -47,15 +19,24 @@ vim.keymap.set('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>')
 vim.keymap.set('n', '<Leader>r', '<cmd>lua vim.lsp.buf.rename()<cr>')
 -- vim.keymap.set({'n', 'x'}, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>')
 vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>')
+vim.keymap.set('n', '<Leader>d', '<cmd>lua vim.diagnostic.open_float()<cr>')
 
 require("bootstrap_lazy")
 require("lazy").setup({
     "tpope/vim-surround",
     "tpope/vim-fugitive",
+    "neovim/nvim-lspconfig",
     "numToStr/Comment.nvim",
     "folke/which-key.nvim",
     "ellisonleao/gruvbox.nvim",
     "RRethy/vim-illuminate",
+    {
+        'windwp/nvim-autopairs',
+        event = "InsertEnter",
+        config = true
+        -- use opts = {} for passing setup options
+        -- this is equivalent to setup({}) function
+    },
     {
         "nvim-treesitter/nvim-treesitter",
         branch = 'master',
@@ -65,6 +46,13 @@ require("lazy").setup({
             require 'nvim-treesitter.configs'.setup { ensure_installed = {"python"} }
         end
 
+    },
+    {
+        "windwp/nvim-ts-autotag",
+        lazy = false,
+        config = function()
+            require("nvim-ts-autotag").setup({})
+        end,
     },
     {
         "airblade/vim-gitgutter",
@@ -96,6 +84,43 @@ require("lazy").setup({
             })
         end,
     },
+    {
+        'nvim-telescope/telescope.nvim', tag = '*',
+        dependencies = {
+            'nvim-lua/plenary.nvim',
+            -- optional but recommended
+            { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
+        },
+        config = function()
+            local builtin = require('telescope.builtin')
+            vim.keymap.set('n', '<leader>ff', builtin.find_files, { desc = 'Telescope find files' })
+            vim.keymap.set('n', '<leader>fg', builtin.live_grep, { desc = 'Telescope live grep' })
+            vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' })
+            vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
+            vim.keymap.set('n', '<leader>fd', builtin.lsp_definitions, { desc = 'Telescope definitions' })
+
+        end
+    },
+    {"b4winckler/vim-angry"},
+    {
+        "exdis/argwrap.nvim",
+        keys = {
+            { "<leader>a", function() require("argwrap").toggle() end, desc = "Toggle argument wrap" },
+        },
+        opts = {
+            tail_comma = true,
+            wrap_closing_brace = true,
+            padded_braces = "",
+            line_prefix = "",
+        },
+        config = function(_, opts)
+            require("argwrap").setup(opts)
+        end,
+    },
 })
 
+
 vim.cmd([[colorscheme gruvbox]])
+vim.lsp.enable("rust_analyzer")
+vim.lsp.enable("pylsp")
+vim.lsp.enable("lua_ls")
