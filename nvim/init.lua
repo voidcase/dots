@@ -9,6 +9,8 @@ vim.o.clipboard = "unnamedplus"
 vim.g.mapleader = " "
 vim.g.maplocalleader = "\\"
 
+
+-- KEYBINDINGS
 vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>')
 vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>')
 -- vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<cr>')
@@ -20,6 +22,13 @@ vim.keymap.set('n', '<Leader>r', '<cmd>lua vim.lsp.buf.rename()<cr>')
 -- vim.keymap.set({'n', 'x'}, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>')
 vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>')
 vim.keymap.set('n', '<Leader>d', '<cmd>lua vim.diagnostic.open_float()<cr>')
+vim.keymap.set('n', '<Leader>w', '<cmd>w<cr>')
+vim.cmd([[nmap s ys]])
+
+-- COMMANDS
+
+vim.api.nvim_create_user_command('ERC', ":e ~/.config/nvim/init.lua", {})
+vim.api.nvim_create_user_command('Writemode', "Goyo | PencilSoft", {})
 
 require("bootstrap_lazy")
 require("lazy").setup({
@@ -30,6 +39,8 @@ require("lazy").setup({
     "folke/which-key.nvim",
     "ellisonleao/gruvbox.nvim",
     "RRethy/vim-illuminate",
+    "junegunn/goyo.vim",
+    "preservim/vim-pencil",
     {
         'windwp/nvim-autopairs',
         event = "InsertEnter",
@@ -121,6 +132,19 @@ require("lazy").setup({
 
 
 vim.cmd([[colorscheme gruvbox]])
+vim.lsp.config["pylsp"] = {
+    cmd = { "uvx", "--from", "python-lsp-server", "pylsp" },
+    filetypes = { 'python' },
+    root_markers = {
+        'pyproject.toml',
+        'setup.py',
+        'setup.cfg',
+        'requirements.txt',
+        'Pipfile',
+        '.git',
+    },
+}
 vim.lsp.enable("rust_analyzer")
 vim.lsp.enable("pylsp")
 vim.lsp.enable("lua_ls")
+vim.lsp.enable("ts_ls")
